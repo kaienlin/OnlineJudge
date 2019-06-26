@@ -6,33 +6,28 @@
 using namespace std;
 
 constexpr int MAXN = 200000;
-using pii = pair<int, int>;
+constexpr int INF = 1e9;
 
-vector<int> adj[MAXN+5];
-pii deg[MAXN+5];
-int size[MAXN+5];
-int parent[MAXN+5];
+int n, m;
+vector< vector<int> > adj;
+vector<int> dist(MAXN+5);
 
-void make_set(int u)
+void bfs(int src)
 {
-    parent[u] = u;
-    size[u] = 1;
-}
-int find_set(int u)
-{
-    if ( parent[u] == u )
-        return u;
-    return parent[u] = find_set(parent[u]);
-}
-void union_set(int u, int v)
-{
-    u = find_set(u);
-    v = find_set(v);
-    if ( u != v ) {
-        if ( size[u] < size[v] )
-            swap(u, v);
-        parent[v] = u;
-        size[u] += size[v];
+    fill(dist.begin(), dist.begin() + n + 1, INF);
+    dist[src] = 0;
+
+    queue<int> q;
+    q.push(src);
+
+    while ( !q.empty() ) {
+        int v = q.front(); q.pop();
+        for ( auto to : adj[v] ) {
+            if ( dist[to] == INF ) {
+                dist[to] = dist[v] + 1;
+                q.push(to);
+            }
+        }
     }
 }
 
@@ -41,42 +36,30 @@ int main()
     ios::sync_with_stdio(false);cin.tie(0);
     int t; cin >> t;
     while ( t-- ) {
-        int n, m; cin >> n >> m;
-        for ( int i = 1; i <= n; i++)
-            adj[i].clear();
+        cin >> n >> m;
+        adj = vector< vector<int> >(n+1);
         for ( int i = 1; i <= m; i++) {
             int u, v; cin >> u >> v;
             adj[u].pb(v);
             adj[v].pb(u);
         }
+        bfs(1);
+        vector<int> even, odd;
         for ( int i = 1; i <= n; i++) {
-            deg[i] = {adj[i].size(), i};
-            make_set(i);
+            if ( dist[i] & 1 )
+                odd.pb(i);
+            else
+                even.pb(i);
         }
-        sort(deg + 1, deg + n + 1, greater<pii>());
-        vector<int> ans;
-        ans.pb(deg[1].se);
-        for ( auto e : adj[ deg[1].se ] )
-            union_set(deg[1].se, e);
-        for ( int i = 2; i <= n; i++) {
-            if ( find_set(deg[i].se) != find_set(deg[1].se) ) {
-                ans.pb(deg[i].se);
-                union_set(deg[i].se, deg[1].se);
-                bool x = false;
-                for ( auto e : adj[ deg[i].se ] ) {
-                    if ( find_set(e) != find_set(deg[1].se) ) {
-                        x = true;
-                        break;
-                    }
-                }
-                if ( x ) {
-                    for ( auto e : adj[ deg[i].se ] )
-                        union_set(e, deg[1].se);
-                }
-            }
+        if ( even.size() < odd.size() ) {
+            cout << even.size() << '\n';
+            for ( auto e : even )
+                cout << e << " ";
+        } else {
+            cout << odd.size() << '\n';
+            for ( auto e : odd )
+                cout << e << " ";
         }
-        cout << ans.size() << '\n';
-        for ( auto e : ans )
-            cout << e << '\n';
+        cout << '\n';
     }
 }
