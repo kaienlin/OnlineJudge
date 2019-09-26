@@ -4,6 +4,7 @@
 using namespace std;
 using LL = int64_t;
 using ULL = uint64_t;
+using pii = pair<int, int>;
 
 int main()
 {
