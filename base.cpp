@@ -12,5 +12,5 @@ using pii = pair<int, int>;
 
 int main()
 {
-    return 0;
+    return EXIT_SUCCESS;
 }
